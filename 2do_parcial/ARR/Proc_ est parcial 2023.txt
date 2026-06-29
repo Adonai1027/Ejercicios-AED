@@ -1,0 +1,89 @@
+Accion Parcial2023(Info:Arreglo de [1..6,1..2] de Real) es
+Ambiente
+Hora=Registro
+    hh:(00..23)
+    mm:(00..59)
+FR
+
+Novedades=Registro  
+    nro_s: entero
+    mod: an()
+    tipo_nov: (1..3)
+    fecha_nov: fecha
+    hora_i: Hora
+    hora_f:Hora
+    circ:entero
+    id:entero
+FR
+
+Celda=Registro
+    cant_p: entero
+    monto_rec: real
+FR
+
+A: Arreglo de [1..7,1..3] de Celda
+circ, pas: entero
+
+Arch:Archivo de Novedades
+Reg:Novedades
+paseoUsu, circUsu, mayorPaseos, circMayor, duracion.mayor: entero 
+monto_var:Real
+
+Procedimiento tipoPaseo(p:entero) es
+    segun p hacer
+        =1: esc("Recreativo")
+        =2: esc("Intensivo")
+    fs
+fp
+
+PROCESO
+Abrir(Arch)
+Leer(Arch,Reg)
+
+Inicializar_Arreglo
+
+Mientras NFDA(Arch) hacer
+    Si Reg.tipo_nov = 2 entonces
+        circ:=Reg.circ
+        duracion:=diff_horas(reg.hora_inicio,reg.hora_fin)
+        segun duracion hacer
+            <6: pas:=1; //Tipo paseo recreativo, columna 1
+            >6: pas:=2; //tipo paseo intensivo, columna 2
+        fs
+        monto_var:= Info[circ, pas] 
+
+        A[circ, pas].cant_p:= A[circ, pas].cant_p +1
+        A[circ, pas].monto_rec:= A[circ, pas].monto_rec + monto_var
+        A[circ, 3].cant_p:= A[circ, 3].cant_p +1
+        A[7, 3].monto_rec:= A[circ, pas].monto_rec + monto_var 
+    Finsi
+    Leer(Arch,Reg)
+Finmientras 
+
+Esc("Cantidad de prestamos y montos por circuito y paseo")
+mayor:=0.
+
+Para pas:=1 a 2 hacer
+    tipoPaseo(pas)
+    Para circ:=1 a 6 hacer
+        Esc("Prestamos circuito", circ,":", A[circ,pas].cant_p)
+        Esc("Monto total circuito", circ,":", A[circ,pas].monto_rec)
+
+        Si A[circ, 3].cant_p > mayor entonces
+            mayor:=A[circ,3].cant_p
+            circMayor:=circ
+        Finsi
+    FP
+FP
+
+Esc("Circuito con mayor cantidad de prestamos:", circMayor)
+
+Esc("Ingrese circuito y tipo de paseo para el que desee conocer importe total recadudado")
+Esc("1 para recreativo 2 para intensivo")
+Leer(circUsu, paseoUsu)
+
+Esc("El circuito", circUsu,"recaudó $",A[circUsu,paseoUsu].monto_rec,"en paseos del tipo",paseoUsu)
+
+Esc("En total se realizaron",A[7,3].cant_p,"prestamos y se recaudó $",A[7,3].monto_rec)
+
+FinAccion
