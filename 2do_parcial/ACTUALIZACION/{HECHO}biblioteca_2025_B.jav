@@ -4,7 +4,7 @@ Accion biblioteca Es
          Cod_lib:N(8)
          Cod_ejemplar:N(10)
       FR 
-
+      //maestro 
       ejemplares=Registro
          clave:formato_clave
          Descripcion:AN(255)
@@ -15,7 +15,7 @@ Accion biblioteca Es
       FR 
       arch_mae,mae_act:archivo de ejemplares ordenado por clave 
       reg_mae,reg_act,aux:ejemplares
-
+      //movimientos
       novedades=Registro
          clave:formato_clave
          Tipo_novedad:(1,2,3,4,5)
@@ -33,7 +33,7 @@ Accion biblioteca Es
       FR 
       arch_usu:archivo de usuarios indexado por Id_usuario 
       reg_usu:usuarios
-
+      //b) Informar cuántos ejemplares se encuentran actualmente prestados.
       cant_prestados:ENTERO
 
       Procedimiento LeerMae() Es 
@@ -50,24 +50,28 @@ Accion biblioteca Es
          FS 
       FP 
 
-      Procedimiento Procesar_Novedad() Es 
+      Procedimiento tratar_procesos_iguales() Es 
          Segun reg_mov.Tipo_novedad Hacer
-            =1: // Ingreso sobre ejemplar existente (Error)
+            =1: // Ingreso sobre ejemplar existente (Error) //ES UNA ALTA=INGRESO
                Escribir('ERROR: Novedad de Ingreso sobre un ejemplar ya existente.')
             =2: // Prestamo
+               //acceder al archivo indexado
                reg_usu.Id_usuario:=reg_mov.Id_usuario
                Leer(arch_usu,reg_usu)
                Si EXISTE Entonces
+                  //Disponible = “No”,
                   aux.Disponible:='No'
                   Segun reg_usu.Tipo_usuario Hacer
-                     ='E': aux.Fecha:=sumar_dias(reg_mov.Fecha_novedad, 10)
-                     ='D': aux.Fecha:=sumar_dias(reg_mov.Fecha_novedad, 15)
-                     ='P': aux.Fecha:=sumar_dias(reg_mov.Fecha_novedad, 7)
+                     //sumar_dias(fecha, dias)
+                     ='E': aux.Fecha:=sumar_dias(reg_mov.Fecha_novedad, 10) //estudiante
+                     ='D': aux.Fecha:=sumar_dias(reg_mov.Fecha_novedad, 15) //docente
+                     ='P': aux.Fecha:=sumar_dias(reg_mov.Fecha_novedad, 7) //publico gral
                   FS
                Sino
                   Escribir('ERROR: El usuario con ID ', reg_mov.Id_usuario, ' no existe. No se puede realizar el prestamo.')
                FS
             =3: // Devolucion
+               //Disponible = “Si”, Fecha = en blanco.
                aux.Disponible:='Si'
                aux.Fecha:=''
             =4: // Mantenimiento
@@ -93,7 +97,7 @@ Accion biblioteca Es
          Si reg_mae.clave < reg_mov.clave Entonces
             reg_act:=reg_mae
             Grabar(mae_act,reg_act)
-            
+            //item b
             Si reg_act.Disponible='No' y reg_act.Estado='Bien' Entonces
                cant_prestados:=cant_prestados+1
             FS
@@ -103,13 +107,13 @@ Accion biblioteca Es
             Si reg_mae.clave = reg_mov.clave Entonces
                aux:=reg_mae
                Mientras reg_mae.clave = reg_mov.clave Hacer
-                  Procesar_Novedad() 
+                  tratar_procesos_iguales() 
                   LeerMov()
                FM 
                
                reg_act:=aux
                Grabar(mae_act,reg_act)
-               
+               //item b
                Si reg_act.Disponible='No' y reg_act.Estado='Bien' Entonces
                   cant_prestados:=cant_prestados+1
                FS
@@ -121,6 +125,7 @@ Accion biblioteca Es
                LeerMov()
                Si reg_mov.Tipo_novedad = 1 Entonces
                   // Inicializamos con el alta
+                  //Nuevo ejemplar: Disponible = “Si”, Fecha = en blanco.
                   aux.Disponible:='Si'
                   aux.Fecha:=''
                   aux.Estado:='Bien'
@@ -140,10 +145,6 @@ Accion biblioteca Es
                   FS
                Sino 
                   Escribir('ERROR: Ejemplar inexistente y el movimiento no es un Ingreso. Clave: ', aux.clave)
-                  // Consumimos todos los movimientos erroneos para esta clave
-                  Mientras aux.clave = reg_mov.clave Hacer
-                     LeerMov()
-                  FM 
                FS 
             FS 
          FS

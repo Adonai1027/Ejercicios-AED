@@ -1,4 +1,4 @@
-Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es 
+Accion ej1(jugador_nom:Arreglo[1..26] de AN(50)) Es 
    Ambiente
       productos=Registro
          id_producto:N(5)
@@ -33,7 +33,7 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
       //final
       imp_tot:REAL
 
-      ventas_jugador:Arreglo[1..27] De ENTERO
+      ventas_jugador:Arreglo[1..26] De ENTERO
 
       i:ENTERO
 
@@ -52,7 +52,7 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
       Procedimiento Procesos_Iguales() Es 
          //item (2)
          Si reg_mov.cantidad>aux.stock Entonces
-            cantidad_faltante:=reg_mov.cantidad-aux.stock //se prevee que haya mas cantidad que stock, sino sería negativo el resultado
+            cantidad_faltante:=reg_mov.cantidad-aux.stock //se prevee que exista mas cantidad que stock, sino sería negativo el resultado
          Sino
             Si aux.stock=0 Entonces
                Escribir('ERROR. NO HAY STOCK.')
@@ -60,7 +60,7 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
          FS
          // item (3)
          Segun aux.categoria Hacer
-            ='C': contador_camiseta:=contador_camiseta+1
+            ='C': contador_camiseta:=contador_camiseta+1;
                   ventas_jugador[reg_mov.nro_jugador]:=ventas_jugador[reg_mov.nro_jugador]+reg_mov.cantidad 
             ='R': contador_remera:=contador_remera+1
             ='G': contador_gorro:=contador_gorro+1
@@ -73,7 +73,7 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
       Abrir E/(arch_mov);LeerMov()
       Abrir /S(mae_actualizado)
 
-      max_ventas:=LW
+      
       max_jugador:=0
       //item (2)
       cantidad_faltante:=0
@@ -87,7 +87,8 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
       //final
       imp_tot:=0
 
-      Para i:=1 hasta 27 Hacer
+      //inicializo el arreglo de ventas por jugador
+      Para i:=1 hasta 26 Hacer
          ventas_jugador[i]:=0
       FP 
 
@@ -108,6 +109,7 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
                LeerMae()
             Sino
                aux:=reg_mae
+               //item2
                cantidad_solicitada:=cantidad_solicitada+reg_mov.cantidad
                LeerMov()
                Mientras reg_mae.id_producto=reg_mov.id_producto Hacer
@@ -119,16 +121,17 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
             FS 
          FS 
       FM 
-      //i1
-      Para i:=1 hasta 27 Hacer
+      //item1
+      max_ventas:=LV 
+      Para i:=1 hasta 26 Hacer
          Si ventas_jugador[i]>max_ventas Entonces
-            max_ventas:=ventas_jugador[i] //cantidad=30
-            max_jugador:=i //posicion=5
+            max_ventas:=ventas_jugador[i]
+            max_jugador:=i 
          FS 
       FP
       Escribir('El nombre del jugador que vendio mas camisetas fue:',jugador_nom[max_jugador],'con un total de camiseta vendidas:',max_ventas)
 
-      //i2
+      //i3
       Si contador_camiseta < cantidad_solicitada Entonces
          cantidad_solicitada:=contador_camiseta
          categoria_menos_solicitada:='Camiseta'
@@ -145,7 +148,7 @@ Accion ej1(jugador_nom:Arreglo[1..27] de AN(50)) Es
          cantidad_solicitada:=contador_short
          categoria_menos_solicitada:='Short'
       FS
-
+      //item 2
       Escribir('La cantidad de productos faltantes es:',cantidad_faltante)
       Escribir('EL PRODUCTO NO EXISTE. La cantidad pedida del mismo fue:',cantidad_solicitada)
       //i3

@@ -1,3 +1,6 @@
+Ambiente
+
+
 Proceso
    // 1. ABRIR ARCHIVOS
    Abrir E/(arch_mae)
@@ -35,6 +38,7 @@ Proceso
                // (Si es una BAJA FÍSICA no se grabaría al final, pero si es 
                // BAJA LÓGICA, solo se cambia un campo Estado a "Baja").
                // ------------------------------------------------
+               tratar_procesos_iguales()
                
                LeerMov() // Se lee el siguiente movimiento
             FM 
@@ -55,33 +59,25 @@ Proceso
             // ----- AQUÍ VAN LAS ALTAS -----
             // Por lo general, se valida que el movimiento sea un código de "Alta" o "Ingreso"
             Si reg_mov.tipo = 'Alta' Entonces
-                aux.clave := reg_mov.clave
+               aux.clave := reg_mov.clave
                 // Se inicializan los datos del nuevo registro
                 // aux.campo := ...
-                
-                LeerMov() // Se avanza el movimiento
-                
+               
+               LeerMov() // Se avanza el movimiento
+               
                 // Si este registro nuevo tuviera múltiples movimientos el mismo día (ej: lo dan de alta y lo prestan el mismo día)
-                Mientras aux.clave = reg_mov.clave Hacer
-                   // Procesar modificaciones sobre esta nueva alta
-                   LeerMov()
-                FM
-                
+               Mientras aux.clave = reg_mov.clave Hacer
+                  // Procesar modificaciones sobre esta nueva alta
+                  LeerMov()
+               FM
                 // Finalmente se graba el registro nuevo
-                reg_act := aux
-                Grabar(mae_act, reg_act)
-                
+               reg_act := aux
+               Grabar(mae_act, reg_act)
             Sino
                 // Si la clave no existía en el maestro y el tipo NO era "Alta" -> ES UN ERROR
-                Escribir("ERROR: Movimiento inválido sobre registro inexistente")
-                
-                // Descartamos todos los movimientos erróneos de esa clave inexistente
-                aux.clave := reg_mov.clave
-                Mientras aux.clave = reg_mov.clave Hacer
-                   LeerMov()
-                FM
-            FS 
-            
+               Escribir("ERROR: Movimiento inválido sobre registro inexistente")
+               
+            FS   
          FS 
       FS
    FM 
